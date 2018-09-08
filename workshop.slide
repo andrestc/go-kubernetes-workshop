@@ -3,4 +3,49 @@ Workshop - Gophercon Brazil 2018
 
 André Carvalho e Cezar Sá
 
-* Intro
+* Agenda
+
+- Setup
+- Concepts
+- Kubernetes API basics
+- Client-go
+- Custom Resource Definitions (CRDs)
+- Controllers
+- Operators
+
+* Setup
+
+This presentation and the code we are going to use is available at:
+
+[[https://github.com/andrestc/go-kubernetes-workshop]]
+
+In this workshop we are going to use Minikube as our Kubernetes cluster:
+
+[[https://github.com/kubernetes/minikube#installation]]
+
+Some later exercises are going to use the Operator SDK:
+
+[[https://github.com/operator-framework/operator-sdk/blob/master/doc/user-guide.md#install-the-operator-sdk-cli]]
+
+
+* Concepts
+
+* Container
+
+* Pod
+
+* Service and Endpoint
+
+* ReplicaSet
+
+* Deployment
+
+* Kubernetes API basics
+
+* Client-go
+
+* Custom Resource Definitions (CRDs)
+
+* Controllers
+
+* Operators
