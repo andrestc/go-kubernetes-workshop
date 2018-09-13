@@ -13,32 +13,181 @@ André Carvalho e Cezar Sá
 - Controllers
 - Operators
 
-* Setup
+* Requirements
 
 This presentation and the code we are going to use is available at:
 
 [[https://github.com/andrestc/go-kubernetes-workshop]]
 
-In this workshop we are going to use Minikube as our Kubernetes cluster:
+We'll need:
 
+- Go
+- Minikube - For running a local kubernetes cluster
+- Kubectl - For interacting with the kubernetes cluster
+
+* Setup
+
+- Downloading the code
+
+  $ go get -d github.com/andrestc/go-kubernetes-workshop/...
+  $ cd $GOPATH/andrestc/go-kubernetes-workshop
+
+- Installing Minikube
+  
 [[https://github.com/kubernetes/minikube#installation]]
 
-Some later exercises are going to use the Operator SDK:
+- Installing Kubectl
+
+[[https://kubernetes.io/docs/tasks/tools/install-kubectl/]]
+
+- Installing Operator SDK CLI (for later exercises)
 
 [[https://github.com/operator-framework/operator-sdk/blob/master/doc/user-guide.md#install-the-operator-sdk-cli]]
 
+* What is Kubernetes
+
+At it's core Kubernetes is a container orchestrator.
+
+It knows:
+
+- *How* to start containers
+- *When* to start containers
+- *Where* to start containes
+
+: One of the official definitions is "Kubernetes is an open-source system for
+: automating deployment, scaling, and management of containerized applications."
+: It does a lot of things not directly related to containers but containers are
+: the core functionality.
+
+: Ask if the audience is familiar with the concept of plain docker containers
+: and basic explanation if needed.
 
 * Concepts
 
-* Container
+Basic objects:
+
+- Pods
+- Services
+- Endpoints
+- Nodes
+- ...
+
+Kubernetes provides an API for CRUDing each available resource.
+
+* Concepts (YAML)
+
+Usually YAML files are used to represent a resource, example:
+
+  apiVersion: v1
+  kind: Pod
+  metadata:
+      name: mypod
+  spec:
+      containers:
+        - name: mypod1
+          image: busybox
+
+* Control Plane
+
+Resources created on the API describe the *desired* state.
+
+The Control Plane is in an infinite loop trying to make the *desired* state a reality.
+
+TODO: better image
+.image images/kube-arch.png _ 550
+.caption By Khtan66 - Own work, CC BY-SA 4.0, https://commons.wikimedia.org/w/index.php?curid=53571935
+
+: A YAML file with a resource description always describe a desired state,
+: this desired state may never come true depending on the available resources for the
+: cluster.
 
 * Pod
 
+Similar to docker containers, except one pod can contain more than one container.
+
+Containers in the same pod:
+- Are scheduled on the same machine;
+- Share the Network namespace (same IP);
+- Share volumes assigned to the Pod.
+
+  apiVersion: v1
+  kind: Pod
+  metadata:
+      name: mypod
+      labels:
+        app: myapp
+  spec:
+      containers:
+        - name: mypod1
+          image: nginx
+
+: PID namespace can also optionally be shared as of 1.10.
+
+* Pod (2)
+
+- Pods will die, on their own they do not provide resilience;
+
+- A pod scheduled to a node will always run on the same node;
+
+- A higher level abstraction is needed to provide resilience.
+
 * Service and Endpoint
 
-* ReplicaSet
+- Pods may vanish anytime their IP address will also vanish;
+
+- Services provide a stable IP and Name to find applications on Kubernetes;
+
+  apiVersion: v1
+  kind: Service
+  metadata:
+      name: myservice
+  spec:
+      type: ClusterIP
+      selector:
+        app: myapp
+
+* Service and Endpoint
+
+- For each pod that matches the selector kubernetes will create an Endpoint object;
+
+- An endpoint is only created for healthy Pod IPs.
+
+* Manipulating objects
+
+- API
+
+- kubectl CLI
+
+* Hands on
+
+- Bootstrap minikube and check cluster
+
+  $ minikube start
+  $ kubectl cluster-info
+
+- Manipulating resources with kubectl
+
+  $ kubectl create ./xx-kubectl/pod.yaml
+  $ kubectl get pod
+  $ kubectl create ./xx-kubectl/service.yaml
+  $ kubectl get service
+  $ minikube service list
+
+: Do a demo and then ask attendees to do the same
+: Explain why minikube is used (only to get node IP)
+
+* Controller objects
+
+- Deployment
+- ReplicaSet
+- ...
+
+Controllers are where the magic happen.
+Controllers can dinamically manipulate basic objects.
 
 * Deployment
+
+* ReplicaSet
 
 * Kubernetes API basics
 
