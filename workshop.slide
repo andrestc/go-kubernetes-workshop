@@ -197,4 +197,14 @@ Controllers can dinamically manipulate basic objects.
 
 * Controllers
 
+* Controllers - Initialization
+
+.code -numbers examples/02-controllers/main.go /START 01/,/FINISH 01/
+
+* Controllers - Initialization
+
+.code -numbers examples/02-controllers/main.go /START 02/,/FINISH 02/
+
+* Controllers
+
 * Operators
