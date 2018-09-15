@@ -197,14 +197,32 @@ Controllers can dinamically manipulate basic objects.
 
 * Controllers
 
-* Controllers - Initialization
+* Controllers - main.go
 
 .code -numbers examples/02-controllers/main.go /START 01/,/FINISH 01/
 
-* Controllers - Initialization
+* Controllers - main.go
 
 .code -numbers examples/02-controllers/main.go /START 02/,/FINISH 02/
 
-* Controllers
+* Controllers - controller.go
+
+.code -numbers examples/02-controllers/controller.go /START 01/,/FINISH 01/
+
+.code -numbers examples/02-controllers/controller.go /enqueueFoo\(obj interface\{\}\)/,/^}/
+
+.code -numbers examples/02-controllers/controller.go /runWorker\(\)/,/^}/
+
+* Controllers - controller.go
+
+.code -numbers examples/02-controllers/controller.go /\) processNextWorkItem/,/\) processNextWorkItem/
+
+.code -numbers examples/02-controllers/controller.go /START PROCESS/,/FINISH PROCESS/
+
+.code -numbers examples/02-controllers/controller.go /START PROCESS-02/,/FINISH PROCESS-02/
+
+* Controllers - controller.go
+
+.code -numbers examples/02-controllers/controller.go /START 02/,/FINISH 02/
 
 * Operators
