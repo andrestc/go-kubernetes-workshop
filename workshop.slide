@@ -258,4 +258,6 @@ Creates a *Deployment* for each *Foo*
 
 - The user should be able to choose between *ClusterIP* and *NodePort*
 
+- Update *Foo* status to show the *Service*'s IP
+
 * Operators
