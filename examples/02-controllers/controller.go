@@ -333,10 +333,11 @@ func (c *Controller) enqueueFoo(obj interface{}) {
 // It then enqueues that Foo resource to be processed. If the object does not
 // have an appropriate OwnerReference, it will simply be skipped.
 func (c *Controller) handleObject(obj interface{}) {
+	// START HANDLE-01 OMIT
 	var object metav1.Object
 	var ok bool
 	if object, ok = obj.(metav1.Object); !ok {
-		tombstone, ok := obj.(cache.DeletedFinalStateUnknown)
+		tombstone, ok := obj.(cache.DeletedFinalStateUnknown) // HL
 		if !ok {
 			runtime.HandleError(fmt.Errorf("error decoding object, invalid type"))
 			return
@@ -348,23 +349,26 @@ func (c *Controller) handleObject(obj interface{}) {
 		}
 		glog.V(4).Infof("Recovered deleted object '%s' from tombstone", object.GetName())
 	}
+	// FINISH HANDLE-01 OMIT
+	// START HANDLE-02 OMIT
 	glog.V(4).Infof("Processing object: %s", object.GetName())
-	if ownerRef := metav1.GetControllerOf(object); ownerRef != nil {
+	if ownerRef := metav1.GetControllerOf(object); ownerRef != nil { // HL
 		// If this object is not owned by a Foo, we should not do anything more
 		// with it.
 		if ownerRef.Kind != "Foo" {
 			return
 		}
 
-		foo, err := c.foosLister.Foos(object.GetNamespace()).Get(ownerRef.Name)
+		foo, err := c.foosLister.Foos(object.GetNamespace()).Get(ownerRef.Name) // HL
 		if err != nil {
 			glog.V(4).Infof("ignoring orphaned object '%s' of foo '%s'", object.GetSelfLink(), ownerRef.Name)
 			return
 		}
 
-		c.enqueueFoo(foo)
+		c.enqueueFoo(foo) // HL
 		return
 	}
+	// FINISH HANDLE-02 OMIT
 }
 
 // newDeployment creates a new Deployment for a Foo resource. It also sets
