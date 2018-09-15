@@ -254,7 +254,7 @@ Creates a *Deployment* for each *Foo*
 
 .link github.com/andrestc/go-kubernetes-workshop/labs/02-controllers
 
-- Change the sample controller to also maintain a *Service* for each `Foo`
+- Change the sample controller to also maintain a *Service* for each *Foo*
 
 - The user should be able to choose between *ClusterIP* and *NodePort*
 
