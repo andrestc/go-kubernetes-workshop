@@ -286,16 +286,42 @@ Creates a *Deployment* for each *Foo*
 
 .link https://github.com/kubernetes/sample-controller
 
+* Sample Controller
 
-* Controllers - main.go
+  ├── hack
+  └── pkg
+      ├── apis
+      │   └── samplecontroller
+      │       └── v1alpha1
+      ├── client
+      │   ├── clientset
+      │   │   └── versioned
+      │   │       ├── fake
+      │   │       ├── scheme
+      │   │       └── typed
+      │   │           └── samplecontroller
+      │   │               └── v1alpha1
+      │   │                   └── fake
+      │   ├── informers
+      │   │   └── externalversions
+      │   │       ├── internalinterfaces
+      │   │       └── samplecontroller
+      │   │           └── v1alpha1
+      │   └── listers
+      │       └── samplecontroller
+      │           └── v1alpha1
+      └── signals
+
+
+* Sample Controller - main.go
 
 .code -numbers examples/02-controllers/main.go /START 01/,/FINISH 01/
 
-* Controllers - main.go
+* Sample Controller - main.go
 
 .code -numbers examples/02-controllers/main.go /START 02/,/FINISH 02/
 
-* Controllers - controller.go
+* Sample Controller - controller.go
 
 .code -numbers examples/02-controllers/controller.go /START 01/,/FINISH 01/
 
@@ -303,7 +329,7 @@ Creates a *Deployment* for each *Foo*
 
 .code -numbers examples/02-controllers/controller.go /runWorker\(\)/,/^}/
 
-* Controllers - controller.go
+* Sample Controller - controller.go
 
 .code -numbers examples/02-controllers/controller.go /\) processNextWorkItem/,/\) processNextWorkItem/
 
@@ -311,17 +337,17 @@ Creates a *Deployment* for each *Foo*
 
 .code -numbers examples/02-controllers/controller.go /START PROCESS-02/,/FINISH PROCESS-02/
 
-* Controllers - controller.go
+* Sample Controller - controller.go
 
 .code -numbers examples/02-controllers/controller.go /START 02/,/FINISH 02/
 
-* Controllers - controllers.go
+* Sample Controller - controllers.go
 
 .code -numbers examples/02-controllers/controller.go /\) handleObject/,/\) handleObject/
 
 .code -numbers examples/02-controllers/controller.go /START HANDLE-01/,/FINISH/
 
-* Controllers - controllers.go
+* Sample Controller - controllers.go
 
 .code -numbers examples/02-controllers/controller.go /START HANDLE-02/,/FINISH/
 
