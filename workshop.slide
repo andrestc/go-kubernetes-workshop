@@ -197,6 +197,17 @@ Controllers can dinamically manipulate basic objects.
 
 * Controllers
 
+* Controllers - Basics
+
+1. *Watch* for changes in the Kubernetes API (Informers, Watch)
+2. *Update* other Kubernetes API resources
+3. *Update* on other real world objects (APIs, Infrastructure)
+4. *Repeat*
+
+* Controllers - Basics
+
+.image images/controllers-1.jpeg _ 750
+
 * Sample Controller
 
 Creates a *Deployment* for each *Foo*
@@ -260,4 +271,18 @@ Creates a *Deployment* for each *Foo*
 
 - Update *Foo* status to show the *Service*'s IP
 
+* Controllers - References
+
+.link https://github.com/kubernetes/sample-controller
+.link https://kccnceu18.sched.com/event/DqvN/writing-kube-controllers-for-everyone-maciej-szulik-red-hat-beginner-skill-level
+.link https://medium.com/@cloudark/kubernetes-custom-controllers-b6c7d0668fdf
+.link https://github.com/kubernetes/kubernetes/tree/master/pkg/controller
+
+
 * Operators
+
+* Operators - References
+
+.link https://github.com/operator-framework/operator-sdk
+.link https://banzaicloud.com/blog/operator-sdk/
+.link https://robszumski.com/building-an-operator/
