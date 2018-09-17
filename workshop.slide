@@ -110,16 +110,7 @@ Containers in the same pod:
 - Share the Network namespace (same IP);
 - Share volumes assigned to the Pod.
 
-  apiVersion: v1
-  kind: Pod
-  metadata:
-      name: mypod
-      labels:
-        app: myapp
-  spec:
-      containers:
-        - name: mypod1
-          image: nginx
+.code labs/xx-kubectl/pod.yaml
 
 : PID namespace can also optionally be shared as of 1.10.
 
@@ -137,14 +128,7 @@ Containers in the same pod:
 
 - Services provide a stable IP and Name to find applications on Kubernetes;
 
-  apiVersion: v1
-  kind: Service
-  metadata:
-      name: myservice
-  spec:
-      type: ClusterIP
-      selector:
-        app: myapp
+.code labs/xx-kubectl/service.yaml
 
 * Service and Endpoint
 
@@ -199,27 +183,7 @@ Containers in the same pod:
 
 * Deployment
 
-  apiVersion: apps/v1
-  kind: Deployment
-  metadata:
-    name: nginx-deployment
-    labels:
-      app: nginx
-  spec:
-    replicas: 3
-    selector:
-      matchLabels:
-        app: nginx
-    template:
-      metadata:
-        labels:
-          app: nginx
-      spec:
-        containers:
-        - name: nginx
-          image: nginx
-          ports:
-          - containerPort: 80
+.code labs/xx-kubectl/deployment.yaml
 
 * Create deployment with kubectl
 
@@ -253,7 +217,80 @@ ReplicaSet controller
 
 : Clarify this is an overly simplified explanation
 
+* Let's make a simple controller
+
+  $ kubectl get pod --no-headers --watch-only -o 'go-template={{println .metadata.name}}' \
+    | xargs -I{} kubectl label pod {} ack=true &
+
+  $ kubectl get pod mypod --show-labels
+  NAME      READY     STATUS    RESTARTS   AGE       LABELS
+  mypod     1/1       Running   0          4d        app=myapp
+
+  $ kubectl label pod mypod a=b
+
+  $ kubectl get pod mypod --show-labels
+  NAME      READY     STATUS    RESTARTS   AGE       LABELS
+  mypod     1/1       Running   0          4d        a=b,ack=true,app=myapp
+
 * Kubernetes API basics
+
+  $ kubectl proxy
+
+[[http://127.0.0.1:8001/openapi/v2]]
+
+* Kubernetes API basics
+
+Core objects:
+
+- /api/<version>/<resource>
+- [[http://127.0.0.1:8001/][/]]
+- [[http://127.0.0.1:8001/api][/api]]
+- [[http://127.0.0.1:8001/api/v1][/api/v1]]
+- [[http://127.0.0.1:8001/api/v1/pods][/api/v1/pods]]
+
+With namespaces:
+
+- /api/<version>/<namespaces>/<namespace name>/<resource>
+- [[http://127.0.0.1:8001/api/v1/namespaces/default/pods][/api/v1/namespaces/default/pods]]
+- [[http://127.0.0.1:8001/api/v1/namespaces/default/pods/mypod][/api/v1/namespaces/default/pods/mypod]]
+
+: Highlight verbs in /api/v1 call for pods
+
+* Kubernetes API basics (2)
+
+Non-core objects:
+
+- /apis/<group>/<version>/<resource>
+- [[http://127.0.0.1:8001/apis][/apis]]
+- [[http://127.0.0.1:8001/apis/apps/v1][/apis/apps/v1]]
+- [[http://127.0.0.1:8001/apis/apps/v1/deployments][/apis/apps/v1/deployments]]
+
+With namespaces:
+
+- /apis/<group>/<version>/<namespaces>/<namespace name>/<resource>
+- [[http://127.0.0.1:8001/apis/apps/v1/namespaces/default/deployments][/apis/apps/v1/deployments]]
+- [[http://127.0.0.1:8001/apis/apps/v1/namespaces/default/deployments/nginx-deployment][/apis/apps/v1/deployments/nginx-deployment]]
+
+* Kubernetes API basics (3)
+
+My kubernetes, my group, my resource, my rules.
+
+Custom Resource Definitions (CRDs):
+
+- /apis/<my group>/<my version>/<my resource>
+
+* Kubernetes API
+
+Let's create a new pod using the API
+
+  $ curl -XPOST http://127.0.0.1:8001/api/v1/namespaces/default/pods \
+    -H "Content-Type: application/json" -d \
+    '{"apiVersion": "v1", "kind": "Pod", "metadata": {"name": "mypod2"},
+      "spec": {"containers": [{"name": "mycont","image": "nginx"}]}}'
+
+* Tasks API
+
+TODO
 
 * Client-go
 
