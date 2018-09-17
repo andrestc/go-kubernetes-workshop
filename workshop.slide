@@ -294,6 +294,10 @@ TODO
 
 * Client-go
 
+.code labs/01-client-go/main.go /START1 OMIT/,/END1 OMIT/
+
+.code labs/01-client-go/main.go /START2 OMIT/,/END2 OMIT/
+
 * Custom Resource Definitions (CRDs)
 
 We can use Kubernetes to store custom objects called Custom Resources
