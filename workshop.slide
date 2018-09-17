@@ -330,7 +330,8 @@ Custom resources are defined by a Custom Resource Definition
 
 * Controllers - Basics
 
-.image images/controllers-1.jpeg _ 750
+.image images/controllers-1.jpeg _ 700
+.caption https://medium.com/@cloudark/kubernetes-custom-controllers-b6c7d0668fdf
 
 * Sample Controller
 
