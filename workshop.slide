@@ -93,7 +93,7 @@ Resources created on the API describe the *desired* state.
 
 The Control Plane is in an infinite loop trying to make the *desired* state a reality.
 
-TODO: better image
+# TODO: better image
 .image images/kube-arch.png _ 550
 .caption By Khtan66 - Own work, CC BY-SA 4.0, https://commons.wikimedia.org/w/index.php?curid=53571935
 
@@ -167,9 +167,9 @@ Containers in the same pod:
 
 - Manipulating resources with kubectl
 
-  $ kubectl create ./xx-kubectl/pod.yaml
+  $ kubectl create -f ./labs/xx-kubectl/pod.yaml
   $ kubectl get pod
-  $ kubectl create ./xx-kubectl/service.yaml
+  $ kubectl create -f ./labs/xx-kubectl/service.yaml
   $ kubectl get service
   $ minikube service list
 
@@ -182,12 +182,76 @@ Containers in the same pod:
 - ReplicaSet
 - ...
 
-Controllers are where the magic happen.
-Controllers can dinamically manipulate basic objects.
+* What controllers do
+
+- Control loop that listen for changes and do something;
+
+- Dinamically create or manipulate basic objects;
+
+- Built-in controllers are implemented in the `controller-manager` component.
+
+- The scheduler is also a controller:
+-    Watch for created pods;
+-    Assigns a node to the pod.
+
+: The workshop will focus on controllers from now on. After taking a look
+: at built-in controllers we'll work further on creating our own controller.
 
 * Deployment
 
+  apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: nginx-deployment
+    labels:
+      app: nginx
+  spec:
+    replicas: 3
+    selector:
+      matchLabels:
+        app: nginx
+    template:
+      metadata:
+        labels:
+          app: nginx
+      spec:
+        containers:
+        - name: nginx
+          image: nginx
+          ports:
+          - containerPort: 80
+
+* Create deployment with kubectl
+
+  $ kubectl create -f ./labs/xx-kubectl/deployment.yaml
+  $ kubectl get pod,deployment,replicaset
+
+- Deployments manage the pod lifecycle;
+- Ensure the number of replica pods exist;
+- If a node is down a new pod will be created to replace the missing one;
+- Manages rolling update of new pod templates.
+
 * ReplicaSet
+
+- Does most of the work for the deployment controller, except rolling updates;
+- It's not usually created manually.
+
+* What does the controller do
+
+Deployment controller
+
+- Watches for deployment object to appear;
+- Creates a new replicaSet object every time the template field is changed;
+- Updates the old replicaSet replicas count to zero.
+
+ReplicaSet controller
+
+- Watches for replica set objects;
+- Create new pods matching the number of replica pods;
+- Watches for pods matching the selector labels;
+- If a pod dies creates a new one to replace it.
+
+: Clarify this is an overly simplified explanation
 
 * Kubernetes API basics
 
