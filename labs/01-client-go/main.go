@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -12,36 +11,31 @@ import (
 )
 
 func runClient() error {
+	kubeConfigPath := filepath.Join(os.Getenv("HOME"), ".kube", "config")
 	// Create client config from ~/.kube/config file
-	config, err := clientcmd.BuildConfigFromFlags("", filepath.Join(os.Getenv("HOME"), ".kube", "config"))
+
+	// CREATE CLIENT OMIT
+	config, err := clientcmd.BuildConfigFromFlags("", kubeConfigPath) // HL1
 	if err != nil {
 		return err
 	}
 
-	// Create the clientset
-	clientset, err := kubernetes.NewForConfig(config)
+	clientset, err := kubernetes.NewForConfig(config) // HL2
 	if err != nil {
 		return err
 	}
+	// CREATE CLIENT OMIT
 
-	// START1 OMIT
-	// List all pods on all namespaces
-	pods, err := clientset.CoreV1().Pods("").List(metav1.ListOptions{})
+	// LIST PODS OMIT
+	pods, err := clientset.CoreV1().Pods("").List(metav1.ListOptions{}) // HL
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%d pods in the cluster\n", len(pods.Items))
-	// END1 OMIT
+	// LIST PODS OMIT
 
-	// START2 OMIT
-	// Get one pod
-	pod, err := clientset.CoreV1().Pods("default").Get("mypod", metav1.GetOptions{})
-	if err != nil {
-		return err
+	for _, p := range pods.Items {
+		fmt.Printf("Namespace: %v\tPod: %v\n", p.Namespace, p.Name)
 	}
-	// END2 OMIT
-	data, _ := json.MarshalIndent(pod, "", "  ")
-	fmt.Printf("%s\n", data)
 
 	return nil
 }

@@ -4,6 +4,7 @@ Workshop - Gophercon Brazil 2018
 André Carvalho e Cezar Sá
 
 * Agenda
+.html images/style.html
 
 - Setup
 - Concepts
@@ -326,9 +327,69 @@ Creating a new pod using the API:
 
 * Client-go
 
-.code labs/01-client-go/main.go /START1 OMIT/,/END1 OMIT/
+[[https://github.com/kubernetes/client-go]]
+[[https://github.com/kubernetes/api]]
+[[https://github.com/kubernetes/apimachinery]]
 
-.code labs/01-client-go/main.go /START2 OMIT/,/END2 OMIT/
+Import paths:
+
+- k8s.io/client-go
+- k8s.io/api
+- k8s.io/apimachinery
+
+* Where do PR go?
+
+[[https://github.com/kubernetes/kubernetes/tree/master/staging/src/k8s.io]]
+
+.image images/staging-k8s-repo.png _ 900
+
+* Backward compatible? Why?
+
+.image images/client-go-compat.png _ 900
+
+: Every kubernetes release is a major change to the client-go
+: more often than not requiring code changes.
+: A good thing is that old releases usually still work on 
+: newer kubernetes only without new features.
+
+* Using client-go (1)
+
+`labs/01-client-go/main.go`
+
+.code labs/01-client-go/main.go /CREATE CLIENT OMIT/,/CREATE CLIENT OMIT/ HL1
+
+Args:
+
+- Override URL for connecting to cluster;
+- kubeConfig file path (used by kubectl, usually at ~/.kube/config).
+
+If kubeconfig path is empty a `InClusterConfig` will be used.
+
+* Using client-go (2)
+
+.code labs/01-client-go/main.go /CREATE CLIENT OMIT/,/CREATE CLIENT OMIT/ HL2
+
+Args:
+
+- `client.Config{}` instance, either created manually or returned previously.
+
+* Using client-go (3)
+
+.code labs/01-client-go/main.go /LIST PODS OMIT/,/LIST PODS OMIT/
+
+- `CoreV1()`: API Group, other possibilities are `AppsV1()`, `NetworkingV1()`, ...
+- `Pods(ns)`: Resource name and namespace parameter, empty namespace equals all namespaces.
+- `List(args)`: Operation its arguments, other possibilities are `Get()`, `Create()`, `Update()`...
+
+* Client-go basic exercise
+
+  $ cd $GOPATH/github.com/andrestc/go-kubernetes-workshop/labs/01-client-go
+  $ go run main.go
+
+The current example list pods for all namespaces, let's change it to:
+
+- Create a new pod if it doesn't exist before listing pods;
+- List all nodes.
 
 * Custom Resource Definitions (CRDs)
 
