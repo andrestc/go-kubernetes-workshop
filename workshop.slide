@@ -436,6 +436,8 @@ Bash script to verify code is updated
 
 Depends on k8s.io/code-generator (tricky to vendor with dep)
 
+.link https://blog.openshift.com/kubernetes-deep-dive-code-generation-customresources/
+
 * Controllers
 
 * Controllers - Basics
