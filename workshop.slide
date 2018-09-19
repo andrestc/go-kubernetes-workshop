@@ -178,6 +178,10 @@ Containers in the same pod:
 -    Watch for created pods;
 -    Assigns a node to the pod.
 
+- The kubelet daemon is also a controller:
+-    Watch for pods with a node assigned;
+-    Start new containers on the container runtime (usually docker).
+
 : The workshop will focus on controllers from now on. After taking a look
 : at built-in controllers we'll work further on creating our own controller.
 
@@ -234,7 +238,7 @@ ReplicaSet controller
 
 * Kubernetes API basics
 
-  $ kubectl proxy
+  $ kubectl proxy &
 
 [[http://127.0.0.1:8001/openapi/v2]]
 
@@ -281,16 +285,44 @@ Custom Resource Definitions (CRDs):
 
 * Kubernetes API
 
-Let's create a new pod using the API
+Listing pods using the API:
+
+  $ curl http://127.0.0.1:8001/api/v1/namespaces/default/pods
+  
+  OR
+  
+  $ kubectl get --raw /api/v1/namespaces/default/pods
+
+Creating a new pod using the API:
 
   $ curl -XPOST http://127.0.0.1:8001/api/v1/namespaces/default/pods \
     -H "Content-Type: application/json" -d \
     '{"apiVersion": "v1", "kind": "Pod", "metadata": {"name": "mypod2"},
       "spec": {"containers": [{"name": "mycont","image": "nginx"}]}}'
 
-* Tasks API
+  OR
 
-TODO
+  $ kubectl create --raw /api/v1/namespaces/default/pods -f - \
+    <<< '{"apiVersion": "v1", "kind": "Pod", "metadata": {"name": "mypod2"},
+      "spec": {"containers": [{"name": "mycont","image": "nginx"}]}}'
+
+* API Exercise
+
+- Start local proxy authenticating requests to the cluster:
+  kubectl proxy &
+
+- Use curl, or browse or kubectl --raw to list APIs:
+  curl 127.0.0.1:8001/apis/
+
+- Let's add a new label to a namespace and check it's there:
+  kubectl label namespace default mykey=myvalue
+  kubectl get namespace default -o json
+  curl 127.0.0.1:8001/api/v1/namespaces/default
+
+- Save the JSON and change the label using your favorite editor;
+- Update the namespace using curl:
+  curl -H "Content-Type: application/json" -X PUT -d ./updatedjsonfile.json \
+    http://127.0.0.1:8001/api/v1/namespaces/default
 
 * Client-go
 
