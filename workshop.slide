@@ -300,6 +300,8 @@ TODO
 
 * Custom Resource Definitions (CRDs)
 
+* Custom Resource Definitions (CRDs)
+
 We can use Kubernetes to store custom objects called Custom Resources
   
   apiVersion: samplecontroller.k8s.io/v1alpha1
@@ -359,6 +361,48 @@ Custom resources are defined by a Custom Resource Definition
   kubectl apply -f labs/02-controllers/artifacts/examples/example-foo/yaml
 
 - Add some validation to your CRD, e.g, replicas must be a integer
+
+* CRDs - Programmatically
+
+*pkg/apis/samplecontroller/v1alpha1/types.go*
+
+.code examples/xx-crds/types.go /START 01/,/FINISH 01/
+
+* CRDs - Programmatically
+
+*pkg/apis/samplecontroller/v1alpha1/types.go*
+
+.code examples/xx-crds/types.go /START 02/,/FINISH 02/
+
+* CRDs - Programmatically
+
+*pkg/apis/samplecontroller/v1alpha1/register.go*
+
+.code examples/xx-crds/register.go /START 01/,/FINISH 01/
+
+* CRDs - Programmatically
+
+*pkg/apis/samplecontroller/v1alpha1/register.go*
+
+.code examples/xx-crds/register.go /START 02/,/FINISH 02/
+
+* CRDs - Programmatically
+
+*pkg/apis/samplecontroller/register.go*
+
+.code examples/xx-crds/outer_register.go
+
+* CRDs - Programmatically
+
+Bash script to generate boilerplate code based on the annotations
+
+  hack/update-codegen.sh
+
+Bash script to verify code is updated
+
+  hack/verify-codegen.sh
+
+Depends on k8s.io/code-generator (tricky to vendor with dep)
 
 * Controllers
 
