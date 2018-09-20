@@ -53,7 +53,7 @@ It knows:
 
 - *How* to start containers
 - *When* to start containers
-- *Where* to start containes
+- *Where* to start containers
 
 : One of the official definitions is "Kubernetes is an open-source system for
 : automating deployment, scaling, and management of containerized applications."
@@ -225,7 +225,7 @@ ReplicaSet controller
 * Let's make a simple controller
 
   $ kubectl get pod --no-headers --watch-only -o 'go-template={{println .metadata.name}}' \
-    | xargs -I{} kubectl label pod {} ack=true &
+    | xargs -I{} kubectl label -f pod {} ack=true &
 
   $ kubectl get pod mypod --show-labels
   NAME      READY     STATUS    RESTARTS   AGE       LABELS
@@ -288,11 +288,11 @@ Custom Resource Definitions (CRDs):
 
 Listing pods using the API:
 
-  $ curl http://127.0.0.1:8001/api/v1/namespaces/default/pods
+  $ curl http://127.0.0.1:8001/api/v1/namespaces/default/pods[?watch=true]
   
   OR
   
-  $ kubectl get --raw /api/v1/namespaces/default/pods
+  $ kubectl get --raw /api/v1/namespaces/default/pods[?watch=true]
 
 Creating a new pod using the API:
 
@@ -307,7 +307,7 @@ Creating a new pod using the API:
     <<< '{"apiVersion": "v1", "kind": "Pod", "metadata": {"name": "mypod2"},
       "spec": {"containers": [{"name": "mycont","image": "nginx"}]}}'
 
-* API Exercise
+* Hands On: API
 
 - Start local proxy authenticating requests to the cluster:
   kubectl proxy &
@@ -356,7 +356,7 @@ Import paths:
 
 `labs/01-client-go/main.go`
 
-.code labs/01-client-go/main.go /CREATE CLIENT OMIT/,/CREATE CLIENT OMIT/ HL1
+.code labs/01-client-go/main.go /CREATE CLIENT/,/CREATE CLIENT/ HL1
 
 Args:
 
@@ -367,7 +367,7 @@ If kubeconfig path is empty a `InClusterConfig` will be used.
 
 * Using client-go (2)
 
-.code labs/01-client-go/main.go /CREATE CLIENT OMIT/,/CREATE CLIENT OMIT/ HL2
+.code labs/01-client-go/main.go /CREATE CLIENT/,/CREATE CLIENT/ HL2
 
 Args:
 
@@ -375,13 +375,13 @@ Args:
 
 * Using client-go (3)
 
-.code labs/01-client-go/main.go /LIST PODS OMIT/,/LIST PODS OMIT/
+.code labs/01-client-go/main.go /LIST PODS/,/LIST PODS/
 
 - `CoreV1()`: API Group, other possibilities are `AppsV1()`, `NetworkingV1()`, ...
 - `Pods(ns)`: Resource name and namespace parameter, empty namespace equals all namespaces.
 - `List(args)`: Operation its arguments, other possibilities are `Get()`, `Create()`, `Update()`...
 
-* Client-go basic exercise
+* Hands On: Client-go basic
 
   $ cd $GOPATH/github.com/andrestc/go-kubernetes-workshop/labs/01-client-go
   $ go run main.go
@@ -389,7 +389,94 @@ Args:
 The current example list pods for all namespaces, let's change it to:
 
 - Create a new pod if it doesn't exist before listing pods;
+
 - List all nodes.
+
+* Client-go Informers
+
+Informers are an abstraction used for two purposes:
+
+- Getting *informed* when an object changes (Informer);
+
+- Listing objects with minimal impact on kubernetes API (Lister).
+
+* Client-go Informers (2)
+
+How do they work? (Pods used as an example, informers work for any resource.)
+
+- Call `/api/v1/pods` to list all existing Pods and add them to a in-memory cache;
+
+- Call `/api/v1/pods?watch=true` to watch for pods added, updated or removed, this call will block forever;
+
+- Every time the watch call yields an object update the in-memory cache accordingly. Adding, updating or removing the yielded object.
+
+* Client-go Informers (3)
+
+Benefits:
+
+- Listing pods is a simple matter of returning the objects in the in-memory cache, no need to call the API.
+
+- We can add hooks to when the in-memory cache is being updated, getting ourselves notified when objects are updated.
+
+: Imagine having an application with an API call that must list pods matching
+: a certain filter. Without informers each request would have to hit the kubernetes
+: API. With informers we only hit the API once regardless of the number of incoming
+: requests.
+
+* Client-go Informers code (1)
+
+.code ./labs/01-client-go-informers/main.go /POD INFORMER/,/POD INFORMER/ HL1
+
+- `NewSharedInformerFactory` - A shared informer factory that can be used simultaneously by many goroutines.
+
+Arguments:
+
+- `clientset`: The same clientset used in previous exercises;
+- `resyncInterval`: An interval the update callback will be triggered for all objects in cache.
+
+: We'll see more about the resync interval, it's useful when trying to match some kind
+: of real world resource to it's expected state described by the object. Every resync
+: interval we would check if this holds true.
+
+* Client-go Informers code (2)
+
+.code ./labs/01-client-go-informers/main.go /POD INFORMER/,/POD INFORMER/ HL2
+
+- One informer must be created for each monitored resource;
+
+- Same logic as basic API applies: Group + Version + Resource.
+
+* Client-go Informers code - .Informer()
+
+.code ./labs/01-client-go-informers/main.go /POD HOOKS/,/POD HOOKS/
+
+- `AddFunc` is called once for each object when the informer starts and again for new objects;
+- `UpdateFunc` is called when a pod is updated but also every `resyncInterval`;
+- `DeleteFunc` is called only when a pod is removed.
+- The `Start` calls start receives a channel used to stop the informer if necessary. 
+
+: In UpdateFunc old is the value currently in the cache, not exactly the
+: previous version of the Pod. Many updates may arrive as a single UpdateFunc call.
+
+* Client-go Informers code - .Lister()
+
+.code ./labs/01-client-go-informers/main.go /POD LISTER/,/POD LISTER/
+
+- Get or List pods in the informer's cache. This call will never hit the kubernetes API, it's only accessing the cache.
+
+* Hands-on: Client-go informers
+
+  $ cd $GOPATH/github.com/andrestc/go-kubernetes-workshop/labs/01-client-go-informers
+  $ go run main.go
+
+- You should see a list of pod names and the message:
+  Error getting pod: pod "shell" not found.
+
+- In a new terminal create a pod named `shell` with some labels and check if it the update callback was called and if it's now available in the `Lister`;
+
+- Change the update func to only print pods if it's changed;
+
+- Use `Lister().List()` to list pods in the informer cache.
 
 * Custom Resource Definitions (CRDs)
 

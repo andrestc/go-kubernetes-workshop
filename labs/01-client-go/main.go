@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -11,15 +12,14 @@ import (
 )
 
 func runClient() error {
-	kubeConfigPath := filepath.Join(os.Getenv("HOME"), ".kube", "config")
-	// Create client config from ~/.kube/config file
+	kubeConfigPath := flag.String("kubeconfig", filepath.Join(os.Getenv("HOME"), ".kube", "config"), "kube config path")
+	flag.Parse()
 
 	// CREATE CLIENT OMIT
-	config, err := clientcmd.BuildConfigFromFlags("", kubeConfigPath) // HL1
+	config, err := clientcmd.BuildConfigFromFlags("", *kubeConfigPath) // HL1
 	if err != nil {
 		return err
 	}
-
 	clientset, err := kubernetes.NewForConfig(config) // HL2
 	if err != nil {
 		return err
