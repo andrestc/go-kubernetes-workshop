@@ -530,7 +530,7 @@ Custom resources are defined by a Custom Resource Definition
                 maximum: 10
 
 
-* CRDs - Hands On
+* Hands On: CRDs
 
 - Apply the CRD yaml to your Kubernetes cluster
 
@@ -538,9 +538,21 @@ Custom resources are defined by a Custom Resource Definition
 
 - Create a few Custom Resources
 
-  kubectl apply -f labs/02-controllers/artifacts/examples/example-foo/yaml
+  kubectl apply -f labs/02-controllers/artifacts/examples/example-foo.yaml
+
+- Check that the resources were created
+
+  kubectl get foo
 
 - Add some validation to your CRD, e.g, replicas must be a integer
+
+* CRDs - Programmatically
+
+- Each Custom Resource is a `struct`
+
+- Kubernetes provides some packages and scripts for code generation
+
+- Some boilerplate is required
 
 * CRDs - Programmatically
 
@@ -586,16 +598,16 @@ Depends on k8s.io/code-generator (tricky to vendor with dep)
 
 .link https://blog.openshift.com/kubernetes-deep-dive-code-generation-customresources/
 
-* Controllers
+* Custom Controllers
 
-* Controllers - Basics
+* Custom Controllers - Basics
 
 1. *Watch* for changes in the Kubernetes API (Informers, Watch)
 2. *Update* other Kubernetes API resources
 3. *Update* on other real world objects (APIs, Infrastructure)
 4. *Repeat*
 
-* Controllers - Basics
+* Custom Controllers - Basics
 
 .image images/controllers-1.jpeg _ 700
 .caption https://medium.com/@cloudark/kubernetes-custom-controllers-b6c7d0668fdf
@@ -679,7 +691,7 @@ Creates a *Deployment* for each *Foo*
 
 .code -numbers examples/02-controllers/controller.go /START HANDLE-02/,/FINISH/
 
-* Hands On - Controller
+* Hands On: Custom Controller
 
 .link github.com/andrestc/go-kubernetes-workshop/labs/02-controllers
 
@@ -689,7 +701,7 @@ Creates a *Deployment* for each *Foo*
 
 - Update *Foo* status to show the *Service*'s IP
 
-* Controllers - References
+* Custom Controllers - References
 
 .link https://github.com/kubernetes/sample-controller
 .link https://kccnceu18.sched.com/event/DqvN/writing-kube-controllers-for-everyone-maciej-szulik-red-hat-beginner-skill-level
