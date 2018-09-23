@@ -669,6 +669,13 @@ Creates a *Deployment* for each *Foo*
 
 .code -numbers examples/02-controllers/controller.go /runWorker\(\)/,/^}/
 
+
+* Sample Controller - workqueue
+
+.image images/workqueue.png _ 800
+.caption https://godoc.org/k8s.io/client-go/util/workqueue
+
+
 * Sample Controller - controller.go
 
 .code -numbers examples/02-controllers/controller.go /\) processNextWorkItem/,/\) processNextWorkItem/
@@ -711,8 +718,31 @@ Creates a *Deployment* for each *Foo*
 
 * Operators
 
+* Operators vs Controllers
+
+- Usually operators act on a set of CRDs
+- Contain "operations" knowledge
+- Many operators already available (Prometheus, etcd, Vault ...)
+
+* Operator SDK
+
+- CLI to bootstrap operators
+- Lets you focus on the business logic
+
+* Hands On: Operators
+
+Let's design and build a Chaos Operator.
+
+This Operator should watch for some CRDs that define chaos :-)
+
+Example: the CRD can use a selector to select pods and a frequency. The Operator
+is going to delete a pod based on the selector with the given frequency.
+
+What other operations can we define?
+
 * Operators - References
 
 .link https://github.com/operator-framework/operator-sdk
 .link https://banzaicloud.com/blog/operator-sdk/
 .link https://robszumski.com/building-an-operator/
+.link https://coreos.com/operators/
