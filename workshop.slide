@@ -325,6 +325,22 @@ Creating a new pod using the API:
   curl -H "Content-Type: application/json" -X PUT -d ./updatedjsonfile.json \
     http://127.0.0.1:8001/api/v1/namespaces/default
 
+
+* Extending Kubernetes
+
+There are several ways to extend Kubernetes
+
+- kubectl plugins
+- API Access extensions
+- Scheduler Extensions
+- Network/Storage plugins
+- *Custom* *Resources*
+
+- *Controllers*
+
+
+.link https://kubernetes.io/docs/concepts/extend-kubernetes/extend-cluster/#extension-points
+
 * Client-go
 
 [[https://github.com/kubernetes/client-go]]
