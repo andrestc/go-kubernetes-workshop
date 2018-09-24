@@ -749,6 +749,18 @@ Creates a *Deployment* for each *Foo*
 - CLI to bootstrap operators
 - Lets you focus on the business logic
 
+Create project
+
+  $ operator-sdk new <my-operator> --api-version=company.example.com/v1beta1 --kind=<my-kind>
+
+Build
+
+  $ operator-sdk build <docker-image>
+
+Run
+
+  $ operator-sdk up local
+
 * Hands On: Operators
 
 Let's design and build a Chaos Operator.
