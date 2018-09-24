@@ -602,15 +602,19 @@ Custom resources are defined by a Custom Resource Definition
 
 * CRDs - Programmatically
 
-Bash script to generate boilerplate code based on the annotations
+- Bash script to generate boilerplate code based on the annotations
 
   hack/update-codegen.sh
 
-Bash script to verify code is updated
+Generates client, informers, listers...
+
+- Bash script to verify code is up to date
 
   hack/verify-codegen.sh
 
 Depends on k8s.io/code-generator (tricky to vendor with dep)
+
+Usually, we start by copying the boilerplate and scripts from the Sample Controller
 
 .link https://blog.openshift.com/kubernetes-deep-dive-code-generation-customresources/
 
