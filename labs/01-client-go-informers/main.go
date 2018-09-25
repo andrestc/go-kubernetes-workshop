@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"reflect"
 	"time"
 
 	_ "github.com/golang/glog"
@@ -42,8 +41,7 @@ func runInformer() error {
 			fmt.Printf("add pod: %v\n", new.(*v1.Pod).Name)
 		},
 		UpdateFunc: func(old, new interface{}) { // HL
-			diff := reflect.DeepEqual(old, new)
-			fmt.Printf("update pod: %v - %v\n", new.(*v1.Pod).Name, diff)
+			fmt.Printf("update pod: %v\n", new.(*v1.Pod).Name)
 		},
 		DeleteFunc: func(obj interface{}) { // HL
 			fmt.Printf("delete pod: %v\n", obj.(*v1.Pod).Name)

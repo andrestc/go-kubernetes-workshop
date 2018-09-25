@@ -143,7 +143,7 @@ Containers in the same pod:
 
 - kubectl CLI
 
-* Hands on
+* Hands on: kubectl
 
 - Bootstrap minikube and check cluster
 
@@ -163,11 +163,11 @@ Containers in the same pod:
 
 * Controller objects
 
-- Deployment
-- ReplicaSet
-- ...
+- Deployment;
+- ReplicaSet;
+- many others...
 
-* What controllers do
+* What do controllers do
 
 - Control loop that listen for changes and do something;
 
@@ -190,7 +190,7 @@ Containers in the same pod:
 
 .code labs/xx-kubectl/deployment.yaml
 
-* Create deployment with kubectl
+* Hands on: Create deployment with kubectl
 
   $ kubectl create -f ./labs/xx-kubectl/deployment.yaml
   $ kubectl get pod,deployment,replicaset
@@ -222,7 +222,7 @@ ReplicaSet controller
 
 : Clarify this is an overly simplified explanation
 
-* Let's make a simple controller
+* Hands on: Let's make a simple controller
 
   $ kubectl get pod --no-headers --watch-only -o 'go-template={{println .metadata.name}}' \
     | xargs -I{} kubectl label -f pod {} ack=true &
@@ -236,6 +236,10 @@ ReplicaSet controller
   $ kubectl get pod mypod --show-labels
   NAME      READY     STATUS    RESTARTS   AGE       LABELS
   mypod     1/1       Running   0          4d        a=b,ack=true,app=myapp
+
+* Hands on: kubectl bonus
+
+  $ kubectl -v=9 get pod
 
 * Kubernetes API basics
 
@@ -261,7 +265,7 @@ With namespaces:
 
 : Highlight verbs in /api/v1 call for pods
 
-* Kubernetes API basics (2)
+* Kubernetes API basics
 
 Non-core objects:
 
@@ -276,13 +280,13 @@ With namespaces:
 - [[http://127.0.0.1:8001/apis/apps/v1/namespaces/default/deployments][/apis/apps/v1/deployments]]
 - [[http://127.0.0.1:8001/apis/apps/v1/namespaces/default/deployments/nginx-deployment][/apis/apps/v1/deployments/nginx-deployment]]
 
-* Kubernetes API basics (3)
-
-My kubernetes, my group, my resource, my rules.
+* Kubernetes API basics
 
 Custom Resource Definitions (CRDs):
 
 - /apis/<my group>/<my version>/<my resource>
+
+- We'll talk more about custom resources later on.
 
 * Kubernetes API
 
@@ -344,8 +348,16 @@ There are several ways to extend Kubernetes
 * Client-go
 
 [[https://github.com/kubernetes/client-go]]
+
+How to connect to the API, parse config files, caching and informers logic.
+
 [[https://github.com/kubernetes/api]]
+
+Structs defining each object (Pod, Container, Deployment, etc...) and its methods.
+
 [[https://github.com/kubernetes/apimachinery]]
+
+Everything else :) Error types, label and field manipulation, watch logic, a few types common to all objects (ObjectMeta, ListOptions, etc...)
 
 Import paths:
 
@@ -353,7 +365,7 @@ Import paths:
 - k8s.io/api
 - k8s.io/apimachinery
 
-* Where do PR go?
+* Where do PRs go?
 
 [[https://github.com/kubernetes/kubernetes/tree/master/staging/src/k8s.io]]
 
@@ -368,7 +380,7 @@ Import paths:
 : A good thing is that old releases usually still work on 
 : newer kubernetes only without new features.
 
-* Using client-go (1)
+* Using client-go
 
 `labs/01-client-go/main.go`
 
@@ -381,7 +393,7 @@ Args:
 
 If kubeconfig path is empty a `InClusterConfig` will be used.
 
-* Using client-go (2)
+* Using client-go
 
 .code labs/01-client-go/main.go /CREATE CLIENT/,/CREATE CLIENT/ HL2
 
@@ -389,7 +401,7 @@ Args:
 
 - `client.Config{}` instance, either created manually or returned previously.
 
-* Using client-go (3)
+* Using client-go
 
 .code labs/01-client-go/main.go /LIST PODS/,/LIST PODS/
 
@@ -473,6 +485,15 @@ Arguments:
 
 : In UpdateFunc old is the value currently in the cache, not exactly the
 : previous version of the Pod. Many updates may arrive as a single UpdateFunc call.
+
+* Client-go Informers code - .Informer()
+
+.code ./labs/01-client-go-informers/main.go /POD HOOKS/,/POD HOOKS/
+
+- Arguments to the hooks are live pointers to the object stored inside the cache;
+- Modifying them is forbidden as this would mess-up future UpdateFunc calls, use `DeepCopy` instead:
+
+  $ obj.(*v1.Pod).DeepCopy()
 
 * Client-go Informers code - .Lister()
 
