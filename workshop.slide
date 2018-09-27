@@ -95,7 +95,6 @@ Resources created on the API describe the *desired* state.
 
 The Control Plane is in an infinite loop trying to make the *desired* state a reality.
 
-# TODO: better image
 .image images/kube-arch.png _ 550
 .caption By Khtan66 - Own work, CC BY-SA 4.0, https://commons.wikimedia.org/w/index.php?curid=53571935
 
@@ -116,7 +115,7 @@ Containers in the same pod:
 
 : PID namespace can also optionally be shared as of 1.10.
 
-* Pod (2)
+* Pod
 
 - Pods will die, on their own they do not provide resilience;
 
@@ -431,9 +430,9 @@ Informers are an abstraction used for two purposes:
 
 - Listing objects with minimal impact on kubernetes API (Lister).
 
-* Client-go Informers (2)
+* Client-go Informers - How do they work?
 
-How do they work? (Pods used as an example, informers work for any resource.)
+Pods used as an example, informers work for any resource.
 
 - Call `/api/v1/pods` to list all existing Pods and add them to a in-memory cache;
 
@@ -441,9 +440,7 @@ How do they work? (Pods used as an example, informers work for any resource.)
 
 - Every time the watch call yields an object update the in-memory cache accordingly. Adding, updating or removing the yielded object.
 
-* Client-go Informers (3)
-
-Benefits:
+* Client-go Informers - Benefits
 
 - Listing pods is a simple matter of returning the objects in the in-memory cache, no need to call the API.
 
@@ -454,7 +451,7 @@ Benefits:
 : API. With informers we only hit the API once regardless of the number of incoming
 : requests.
 
-* Client-go Informers code (1)
+* Client-go Informers code
 
 .code ./labs/01-client-go-informers/main.go /POD INFORMER/,/POD INFORMER/ HL1
 
@@ -469,7 +466,7 @@ Arguments:
 : of real world resource to it's expected state described by the object. Every resync
 : interval we would check if this holds true.
 
-* Client-go Informers code (2)
+* Client-go Informers code
 
 .code ./labs/01-client-go-informers/main.go /POD INFORMER/,/POD INFORMER/ HL2
 
