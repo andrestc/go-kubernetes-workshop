@@ -44,7 +44,6 @@ func init() {
 }
 
 func main() {
-	// START 01 OMIT
 	flag.Parse()
 
 	// set up signals so we handle the first shutdown signal gracefully
@@ -55,30 +54,27 @@ func main() {
 		glog.Fatalf("Error building kubeconfig: %s", err.Error())
 	}
 
-	kubeClient, err := kubernetes.NewForConfig(cfg) // HL
+	kubeClient, err := kubernetes.NewForConfig(cfg)
 	if err != nil {
 		glog.Fatalf("Error building kubernetes clientset: %s", err.Error())
 	}
 
-	exampleClient, err := clientset.NewForConfig(cfg) // HL
+	exampleClient, err := clientset.NewForConfig(cfg)
 	if err != nil {
 		glog.Fatalf("Error building example clientset: %s", err.Error())
 	}
-	// FINISH 01 OMIT
 
-	// START 02 OMIT
-	kubeInformerFactory := kubeinformers.NewSharedInformerFactory(kubeClient, time.Second*30)   // HL
-	exampleInformerFactory := informers.NewSharedInformerFactory(exampleClient, time.Second*30) // HL
+	kubeInformerFactory := kubeinformers.NewSharedInformerFactory(kubeClient, time.Second*30)
+	exampleInformerFactory := informers.NewSharedInformerFactory(exampleClient, time.Second*30)
 
 	controller := NewController(kubeClient, exampleClient,
 		kubeInformerFactory.Apps().V1().Deployments(),
 		exampleInformerFactory.Samplecontroller().V1alpha1().Foos())
 
-	go kubeInformerFactory.Start(stopCh)    // HL
-	go exampleInformerFactory.Start(stopCh) // HL
+	go kubeInformerFactory.Start(stopCh)
+	go exampleInformerFactory.Start(stopCh)
 
 	if err = controller.Run(2, stopCh); err != nil {
 		glog.Fatalf("Error running controller: %s", err.Error())
 	}
-	// FINISH 02 OMIT
 }

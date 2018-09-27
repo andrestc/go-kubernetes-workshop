@@ -111,7 +111,7 @@ Containers in the same pod:
 - Share the Network namespace (same IP);
 - Share volumes assigned to the Pod.
 
-.code labs/xx-kubectl/pod.yaml
+.code labs/00-kubectl/pod.yaml
 
 : PID namespace can also optionally be shared as of 1.10.
 
@@ -129,7 +129,7 @@ Containers in the same pod:
 
 - Services provide a stable IP and Name to find applications on Kubernetes;
 
-.code labs/xx-kubectl/service.yaml
+.code labs/00-kubectl/service.yaml
 
 * Service and Endpoint
 
@@ -152,9 +152,9 @@ Containers in the same pod:
 
 - Manipulating resources with kubectl
 
-  $ kubectl create -f ./labs/xx-kubectl/pod.yaml
+  $ kubectl create -f ./labs/00-kubectl/pod.yaml
   $ kubectl get pod
-  $ kubectl create -f ./labs/xx-kubectl/service.yaml
+  $ kubectl create -f ./labs/00-kubectl/service.yaml
   $ kubectl get service
   $ minikube service list
 
@@ -188,11 +188,11 @@ Containers in the same pod:
 
 * Deployment
 
-.code labs/xx-kubectl/deployment.yaml
+.code labs/00-kubectl/deployment.yaml
 
 * Hands on: Create deployment with kubectl
 
-  $ kubectl create -f ./labs/xx-kubectl/deployment.yaml
+  $ kubectl create -f ./labs/00-kubectl/deployment.yaml
   $ kubectl get pod,deployment,replicaset
 
 - Deployments manage the pod lifecycle;
@@ -453,7 +453,7 @@ Pods used as an example, informers work for any resource.
 
 * Client-go Informers code
 
-.code ./labs/01-client-go-informers/main.go /POD INFORMER/,/POD INFORMER/ HL1
+.code ./labs/02-client-go-informers/main.go /POD INFORMER/,/POD INFORMER/ HL1
 
 - `NewSharedInformerFactory` - A shared informer factory that can be used simultaneously by many goroutines.
 
@@ -468,7 +468,7 @@ Arguments:
 
 * Client-go Informers code
 
-.code ./labs/01-client-go-informers/main.go /POD INFORMER/,/POD INFORMER/ HL2
+.code ./labs/02-client-go-informers/main.go /POD INFORMER/,/POD INFORMER/ HL2
 
 - One informer must be created for each monitored resource;
 
@@ -476,7 +476,7 @@ Arguments:
 
 * Client-go Informers code - .Informer()
 
-.code ./labs/01-client-go-informers/main.go /POD HOOKS/,/POD HOOKS/
+.code ./labs/02-client-go-informers/main.go /POD HOOKS/,/POD HOOKS/
 
 - `AddFunc` is called once for each object when the informer starts and again for new objects;
 - `UpdateFunc` is called when a pod is updated but also every `resyncInterval`;
@@ -488,7 +488,7 @@ Arguments:
 
 * Client-go Informers code - .Informer()
 
-.code ./labs/01-client-go-informers/main.go /POD HOOKS/,/POD HOOKS/
+.code ./labs/02-client-go-informers/main.go /POD HOOKS/,/POD HOOKS/
 
 - Arguments to the hooks are live pointers to the object stored inside the cache;
 - Modifying them is forbidden as this would mess-up future UpdateFunc calls, use `DeepCopy` instead:
@@ -497,13 +497,13 @@ Arguments:
 
 * Client-go Informers code - .Lister()
 
-.code ./labs/01-client-go-informers/main.go /POD LISTER/,/POD LISTER/
+.code ./labs/02-client-go-informers/main.go /POD LISTER/,/POD LISTER/
 
 - Get or List pods in the informer's cache. This call will never hit the kubernetes API, it's only accessing the cache.
 
 * Hands-on: Client-go informers
 
-  $ cd $GOPATH/github.com/andrestc/go-kubernetes-workshop/labs/01-client-go-informers
+  $ cd $GOPATH/github.com/andrestc/go-kubernetes-workshop/labs/02-client-go-informers
   $ go run main.go
 
 - You should see a list of pod names and the message:
@@ -594,11 +594,11 @@ Custom resources are defined by a Custom Resource Definition
 
 - Apply the CRD yaml to your Kubernetes cluster
 
-  kubectl apply -f labs/02-controllers/artifacts/examples/crd.yaml
+  kubectl apply -f labs/03-controllers/artifacts/examples/crd.yaml
 
 - Create a few Custom Resources
 
-  kubectl apply -f labs/02-controllers/artifacts/examples/example-foo.yaml
+  kubectl apply -f labs/03-controllers/artifacts/examples/example-foo.yaml
 
 - Check that the resources were created
 
@@ -719,19 +719,19 @@ Creates a *Deployment* for each *Foo*
 
 * Sample Controller - main.go
 
-.code -numbers examples/02-controllers/main.go /START 01/,/FINISH 01/
+.code -numbers examples/03-controllers/main.go /START 01/,/FINISH 01/
 
 * Sample Controller - main.go
 
-.code -numbers examples/02-controllers/main.go /START 02/,/FINISH 02/
+.code -numbers examples/03-controllers/main.go /START 02/,/FINISH 02/
 
 * Sample Controller - controller.go
 
-.code -numbers examples/02-controllers/controller.go /START 01/,/FINISH 01/
+.code -numbers examples/03-controllers/controller.go /START 01/,/FINISH 01/
 
-.code -numbers examples/02-controllers/controller.go /enqueueFoo\(obj interface\{\}\)/,/^}/
+.code -numbers examples/03-controllers/controller.go /enqueueFoo\(obj interface\{\}\)/,/^}/
 
-.code -numbers examples/02-controllers/controller.go /runWorker\(\)/,/^}/
+.code -numbers examples/03-controllers/controller.go /runWorker\(\)/,/^}/
 
 : MetaNamespaceKeyFunc is a convenient default KeyFunc which knows how to make
 : keys for API objects which implement meta.Interface.
@@ -744,11 +744,11 @@ Creates a *Deployment* for each *Foo*
 
 * Sample Controller - controller.go
 
-.code -numbers examples/02-controllers/controller.go /\) processNextWorkItem/,/\) processNextWorkItem/
+.code -numbers examples/03-controllers/controller.go /\) processNextWorkItem/,/\) processNextWorkItem/
 
-.code -numbers examples/02-controllers/controller.go /START PROCESS/,/FINISH PROCESS/
+.code -numbers examples/03-controllers/controller.go /START PROCESS/,/FINISH PROCESS/
 
-.code -numbers examples/02-controllers/controller.go /START PROCESS-02/,/FINISH PROCESS-02/
+.code -numbers examples/03-controllers/controller.go /START PROCESS-02/,/FINISH PROCESS-02/
 
 : Done    => processing finished
 : Forget  => do not re-queue this work.
@@ -757,13 +757,13 @@ Creates a *Deployment* for each *Foo*
 
 * Sample Controller - controller.go
 
-.code -numbers examples/02-controllers/controller.go /START 02/,/FINISH 02/
+.code -numbers examples/03-controllers/controller.go /START 02/,/FINISH 02/
 
 * Sample Controller - controllers.go
 
-.code -numbers examples/02-controllers/controller.go /\) handleObject/,/\) handleObject/
+.code -numbers examples/03-controllers/controller.go /\) handleObject/,/\) handleObject/
 
-.code -numbers examples/02-controllers/controller.go /START HANDLE-01/,/FINISH/
+.code -numbers examples/03-controllers/controller.go /START HANDLE-01/,/FINISH/
 
 : If the object was removed, we may receive a tombstone instead.
 : This is a "container" that contains the metadata of the deleted
@@ -771,11 +771,11 @@ Creates a *Deployment* for each *Foo*
 
 * Sample Controller - controllers.go
 
-.code -numbers examples/02-controllers/controller.go /START HANDLE-02/,/FINISH/
+.code -numbers examples/03-controllers/controller.go /START HANDLE-02/,/FINISH/
 
 * Hands On: Custom Controller
 
-.link github.com/andrestc/go-kubernetes-workshop/labs/02-controllers
+.link github.com/andrestc/go-kubernetes-workshop/labs/03-controllers
 
 - Change the sample controller to also maintain a *Service* for each *Foo*
 

@@ -114,30 +114,33 @@ func NewController(
 	}
 
 	glog.Info("Setting up event handlers")
-	// START 01 OMIT
+	// Set up an event handler for when Foo resources change
 	fooInformer.Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
-		AddFunc: controller.enqueueFoo, // HL
+		AddFunc: controller.enqueueFoo,
 		UpdateFunc: func(old, new interface{}) {
-			controller.enqueueFoo(new) // HL
+			controller.enqueueFoo(new)
 		},
 	})
-
-	// FINISH 01 OMIT
-
-	// START 02 OMIT
+	// Set up an event handler for when Deployment resources change. This
+	// handler will lookup the owner of the given Deployment, and if it is
+	// owned by a Foo resource will enqueue that Foo resource for
+	// processing. This way, we don't need to implement custom logic for
+	// handling Deployment resources. More info on this pattern:
+	// https://github.com/kubernetes/community/blob/8cafef897a22026d42f5e5bb3f104febe7e29830/contributors/devel/controllers.md
 	deploymentInformer.Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
-		AddFunc: controller.handleObject, // HL
+		AddFunc: controller.handleObject,
 		UpdateFunc: func(old, new interface{}) {
 			newDepl := new.(*appsv1.Deployment)
 			oldDepl := old.(*appsv1.Deployment)
-			if newDepl.ResourceVersion == oldDepl.ResourceVersion { // HL
-				return // HL
-			} // HL
-			controller.handleObject(new) // HL
+			if newDepl.ResourceVersion == oldDepl.ResourceVersion {
+				// Periodic resync will send update events for all known Deployments.
+				// Two different versions of the same Deployment will always have different RVs.
+				return
+			}
+			controller.handleObject(new)
 		},
-		DeleteFunc: controller.handleObject, // HL
+		DeleteFunc: controller.handleObject,
 	})
-	// FINISH 02 OMIT
 
 	return controller
 }
@@ -182,39 +185,53 @@ func (c *Controller) runWorker() {
 
 // processNextWorkItem will read a single work item off the workqueue and
 // attempt to process it, by calling the syncHandler.
-func (c *Controller) processNextWorkItem() bool { // HL
-	obj, shutdown := c.workqueue.Get() // HL
+func (c *Controller) processNextWorkItem() bool {
+	obj, shutdown := c.workqueue.Get()
 
 	if shutdown {
-		return false // HL
+		return false
 	}
 
-	// START PROCESS OMIT
+	// We wrap this block in a func so we can defer c.workqueue.Done.
 	err := func(obj interface{}) error {
-		defer c.workqueue.Done(obj) // HL
+		// We call Done here so the workqueue knows we have finished
+		// processing this item. We also must remember to call Forget if we
+		// do not want this work item being re-queued. For example, we do
+		// not call Forget if a transient error occurs, instead the item is
+		// put back on the workqueue and attempted again after a back-off
+		// period.
+		defer c.workqueue.Done(obj)
 		var key string
 		var ok bool
-
+		// We expect strings to come off the workqueue. These are of the
+		// form namespace/name. We do this as the delayed nature of the
+		// workqueue means the items in the informer cache may actually be
+		// more up to date that when the item was initially put onto the
+		// workqueue.
 		if key, ok = obj.(string); !ok {
-			c.workqueue.Forget(obj) // HL
+			// As the item in the workqueue is actually invalid, we call
+			// Forget here else we'd go into a loop of attempting to
+			// process a work item that is invalid.
+			c.workqueue.Forget(obj)
 			runtime.HandleError(fmt.Errorf("expected string in workqueue but got %#v", obj))
 			return nil
 		}
-		if err := c.syncHandler(key); err != nil { // HL
+		// Run the syncHandler, passing it the namespace/name string of the
+		// Foo resource to be synced.
+		if err := c.syncHandler(key); err != nil {
 			return fmt.Errorf("error syncing '%s': %s", key, err.Error())
 		}
-
-		c.workqueue.Forget(obj) // HL
+		// Finally, if no error occurs we Forget this item so it does not
+		// get queued again until another change happens.
+		c.workqueue.Forget(obj)
+		glog.Infof("Successfully synced '%s'", key)
 		return nil
 	}(obj)
-	// FINISH PROCESS OMIT
 
-	// START PROCESS-02 OMIT
 	if err != nil {
-		runtime.HandleError(err) // HL
+		runtime.HandleError(err)
 		return true
 	}
-	// FINISH PROCESS-02 OMIT
 
 	return true
 }
@@ -320,11 +337,11 @@ func (c *Controller) updateFooStatus(foo *samplev1alpha1.Foo, deployment *appsv1
 func (c *Controller) enqueueFoo(obj interface{}) {
 	var key string
 	var err error
-	if key, err = cache.MetaNamespaceKeyFunc(obj); err != nil { // HL
+	if key, err = cache.MetaNamespaceKeyFunc(obj); err != nil {
 		runtime.HandleError(err)
 		return
 	}
-	c.workqueue.AddRateLimited(key) // HL
+	c.workqueue.AddRateLimited(key)
 }
 
 // handleObject will take any resource implementing metav1.Object and attempt
@@ -333,11 +350,10 @@ func (c *Controller) enqueueFoo(obj interface{}) {
 // It then enqueues that Foo resource to be processed. If the object does not
 // have an appropriate OwnerReference, it will simply be skipped.
 func (c *Controller) handleObject(obj interface{}) {
-	// START HANDLE-01 OMIT
 	var object metav1.Object
 	var ok bool
 	if object, ok = obj.(metav1.Object); !ok {
-		tombstone, ok := obj.(cache.DeletedFinalStateUnknown) // HL
+		tombstone, ok := obj.(cache.DeletedFinalStateUnknown)
 		if !ok {
 			runtime.HandleError(fmt.Errorf("error decoding object, invalid type"))
 			return
@@ -349,26 +365,23 @@ func (c *Controller) handleObject(obj interface{}) {
 		}
 		glog.V(4).Infof("Recovered deleted object '%s' from tombstone", object.GetName())
 	}
-	// FINISH HANDLE-01 OMIT
-	// START HANDLE-02 OMIT
 	glog.V(4).Infof("Processing object: %s", object.GetName())
-	if ownerRef := metav1.GetControllerOf(object); ownerRef != nil { // HL
+	if ownerRef := metav1.GetControllerOf(object); ownerRef != nil {
 		// If this object is not owned by a Foo, we should not do anything more
 		// with it.
 		if ownerRef.Kind != "Foo" {
 			return
 		}
 
-		foo, err := c.foosLister.Foos(object.GetNamespace()).Get(ownerRef.Name) // HL
+		foo, err := c.foosLister.Foos(object.GetNamespace()).Get(ownerRef.Name)
 		if err != nil {
 			glog.V(4).Infof("ignoring orphaned object '%s' of foo '%s'", object.GetSelfLink(), ownerRef.Name)
 			return
 		}
 
-		c.enqueueFoo(foo) // HL
+		c.enqueueFoo(foo)
 		return
 	}
-	// FINISH HANDLE-02 OMIT
 }
 
 // newDeployment creates a new Deployment for a Foo resource. It also sets
