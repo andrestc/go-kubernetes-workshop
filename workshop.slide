@@ -719,19 +719,19 @@ Creates a *Deployment* for each *Foo*
 
 * Sample Controller - main.go
 
-.code -numbers examples/03-controllers/main.go /START 01/,/FINISH 01/
+.code -numbers examples/02-controllers/main.go /START 01/,/FINISH 01/
 
 * Sample Controller - main.go
 
-.code -numbers examples/03-controllers/main.go /START 02/,/FINISH 02/
+.code -numbers examples/02-controllers/main.go /START 02/,/FINISH 02/
 
 * Sample Controller - controller.go
 
-.code -numbers examples/03-controllers/controller.go /START 01/,/FINISH 01/
+.code -numbers examples/02-controllers/controller.go /START 01/,/FINISH 01/
 
-.code -numbers examples/03-controllers/controller.go /enqueueFoo\(obj interface\{\}\)/,/^}/
+.code -numbers examples/02-controllers/controller.go /enqueueFoo\(obj interface\{\}\)/,/^}/
 
-.code -numbers examples/03-controllers/controller.go /runWorker\(\)/,/^}/
+.code -numbers examples/02-controllers/controller.go /runWorker\(\)/,/^}/
 
 : MetaNamespaceKeyFunc is a convenient default KeyFunc which knows how to make
 : keys for API objects which implement meta.Interface.
@@ -744,11 +744,11 @@ Creates a *Deployment* for each *Foo*
 
 * Sample Controller - controller.go
 
-.code -numbers examples/03-controllers/controller.go /\) processNextWorkItem/,/\) processNextWorkItem/
+.code -numbers examples/02-controllers/controller.go /\) processNextWorkItem/,/\) processNextWorkItem/
 
-.code -numbers examples/03-controllers/controller.go /START PROCESS/,/FINISH PROCESS/
+.code -numbers examples/02-controllers/controller.go /START PROCESS/,/FINISH PROCESS/
 
-.code -numbers examples/03-controllers/controller.go /START PROCESS-02/,/FINISH PROCESS-02/
+.code -numbers examples/02-controllers/controller.go /START PROCESS-02/,/FINISH PROCESS-02/
 
 : Done    => processing finished
 : Forget  => do not re-queue this work.
@@ -757,13 +757,13 @@ Creates a *Deployment* for each *Foo*
 
 * Sample Controller - controller.go
 
-.code -numbers examples/03-controllers/controller.go /START 02/,/FINISH 02/
+.code -numbers examples/02-controllers/controller.go /START 02/,/FINISH 02/
 
 * Sample Controller - controllers.go
 
-.code -numbers examples/03-controllers/controller.go /\) handleObject/,/\) handleObject/
+.code -numbers examples/02-controllers/controller.go /\) handleObject/,/\) handleObject/
 
-.code -numbers examples/03-controllers/controller.go /START HANDLE-01/,/FINISH/
+.code -numbers examples/02-controllers/controller.go /START HANDLE-01/,/FINISH/
 
 : If the object was removed, we may receive a tombstone instead.
 : This is a "container" that contains the metadata of the deleted
@@ -771,7 +771,7 @@ Creates a *Deployment* for each *Foo*
 
 * Sample Controller - controllers.go
 
-.code -numbers examples/03-controllers/controller.go /START HANDLE-02/,/FINISH/
+.code -numbers examples/02-controllers/controller.go /START HANDLE-02/,/FINISH/
 
 * Hands On: Custom Controller
 
