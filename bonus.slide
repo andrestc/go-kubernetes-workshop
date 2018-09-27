@@ -1,0 +1,62 @@
+Bonus
+
+* Custom schedulers
+.html images/style.html
+
+* Scheduler
+
+- As we've mentioned earlier schedulers are also controllers with a very specific task;
+
+- Their only job is to set the `spec.nodeName` field on Pods;
+
+- The default scheduler will do this for every pod using it's internal logic, with one exception;
+
+- Pods with a non-empty `spec.schedulerName` field will be ignored by the default scheduler.
+
+* Custom schedulers
+
+Custom schedulers must watch for pods matching these conditions:
+
+- `spec.schedulerName` is set with a value that matches our scheduler;
+
+- `spec.nodeName` is unset.
+
+* Hands on: Creating a custom scheduler
+
+- A scheduler logic may be as simple as setting always the same hardcoded node for all pods, it's up to you;
+
+- You can use anything to write a scheduler, the same controllers, we can write a scheduler using only bash.
+
+* Unit testing client-go
+
+* Unit testing client-go
+
+- The client-go already provides a fake client implementation;
+
+  import "k8s.io/client-go/kubernetes/fake"
+  ...
+  var fakeClient kubernetes.Interface = fake.NewSimpleClientset()
+
+- Objects created are persisted in memory and returned on List and Get calls automatically;
+
+- Controllers are *NOT* running (i.e. creating a Deployment won't trigger the creation of Pods and ReplicaSets);
+
+* Unit testing client-go - reactions
+
+Custom reactions may be added when fake objects are created or modified:
+
+  fakeClient.PrependReactor("create", "pods", func(action testing.Action) 
+      (handled bool, ret runtime.Object, err error) {
+    pod := action.(testing.CreateAction).GetObject().(*apiv1.Pod)
+    return false, pod, nil
+  })
+
+- `*` can be used instead of `create` and `pods` argument to listen for everything;
+
+- `NewSimpleClientset` already adds a default reactor which tracks objects;
+
+- Returning `handled` as true will prevent other reactors from being called.
+
+* Hands-on: client-go unit testing
+
+- Let's add some unit tests to our client-go basic exercise.

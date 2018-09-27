@@ -241,6 +241,8 @@ ReplicaSet controller
 
   $ kubectl -v=9 get pod
 
+* Kubernetes API
+
 * Kubernetes API basics
 
   $ kubectl proxy &
@@ -288,7 +290,22 @@ Custom Resource Definitions (CRDs):
 
 - We'll talk more about custom resources later on.
 
-* Kubernetes API
+* Extending Kubernetes
+
+There are several ways to extend Kubernetes
+
+- kubectl plugins
+- API Access extensions
+- Scheduler Extensions
+- Network/Storage plugins
+- *Custom* *Resources*
+
+- *Controllers*
+
+
+.link https://kubernetes.io/docs/concepts/extend-kubernetes/extend-cluster/#extension-points
+
+* Kubernetes API - examples
 
 Listing pods using the API:
 
@@ -329,21 +346,6 @@ Creating a new pod using the API:
   curl -H "Content-Type: application/json" -X PUT -d ./updatedjsonfile.json \
     http://127.0.0.1:8001/api/v1/namespaces/default
 
-
-* Extending Kubernetes
-
-There are several ways to extend Kubernetes
-
-- kubectl plugins
-- API Access extensions
-- Scheduler Extensions
-- Network/Storage plugins
-- *Custom* *Resources*
-
-- *Controllers*
-
-
-.link https://kubernetes.io/docs/concepts/extend-kubernetes/extend-cluster/#extension-points
 
 * Client-go
 
@@ -516,6 +518,29 @@ Arguments:
 - Use `Lister().List()` to list pods in the informer cache.
 
 * Custom Resource Definitions (CRDs)
+
+* What's a resource
+
+- Resources are objects that share a similar structure:
+
+.code ./examples/xx-crds/structs.go /POD STRUCT/,/POD STRUCT/ HL1
+
+- `TypeMeta`: Describes resource `Kind` and `Version`, in this case they would be `"Pod"` and `"v1"`;
+- `ObjectMeta`: Common information all resource must have: `Name`, `Labels`, `Annotations`, `Namespace`, `Version`, `ResourceVersion`, various timestamps, etc...
+
+* What's a resource
+
+.code ./examples/xx-crds/structs.go /POD STRUCT/,/POD STRUCT/ HL2
+
+- `<ResourceName>Spec`: Specific for each object, describes the desired state of the object, directly defined by the API user: desired nodes, container image, command, etc...
+- `<ResourceName>Status`: What's the cluster current state in regard to the desired state: current node, process state, process exit code, timestamps for each state, etc...
+
+* What's a resource
+
+.code ./examples/xx-crds/structs.go /POD LIST STRUCT/,/POD LIST STRUCT/
+
+- `<ResourceName>List` struct: Returned by list API calls with the requested `Items` resource objects.
+
 
 * Custom Resource Definitions (CRDs)
 
