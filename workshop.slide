@@ -147,6 +147,7 @@ Containers in the same pod:
 - Bootstrap minikube and check cluster
 
   $ minikube start
+  $ kubectl config use-context minikube
   $ kubectl cluster-info
 
 - Manipulating resources with kubectl
@@ -412,7 +413,7 @@ Args:
 
 * Hands On: Client-go basic
 
-  $ cd $GOPATH/github.com/andrestc/go-kubernetes-workshop/labs/01-client-go
+  $ cd $GOPATH/src/github.com/andrestc/go-kubernetes-workshop/labs/01-client-go
   $ go run main.go
 
 The current example list pods for all namespaces, let's change it to:

@@ -5,3 +5,4 @@ metadata:
 spec:
   deploymentName: example-foo
   replicas: 1
+  serviceType: NodePort

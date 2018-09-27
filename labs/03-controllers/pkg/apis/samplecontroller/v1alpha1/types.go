@@ -36,11 +36,13 @@ type Foo struct {
 type FooSpec struct {
 	DeploymentName string `json:"deploymentName"`
 	Replicas       *int32 `json:"replicas"`
+	ServiceType    string `json:"serviceType"`
 }
 
 // FooStatus is the status for a Foo resource
 type FooStatus struct {
-	AvailableReplicas int32 `json:"availableReplicas"`
+	AvailableReplicas int32  `json:"availableReplicas"`
+	ServiceIP         string `json:"serviceIP"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

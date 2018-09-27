@@ -9,6 +9,7 @@ import (
 
 	_ "github.com/golang/glog"
 	"k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
@@ -30,7 +31,7 @@ func runInformer() error {
 	}
 
 	// POD INFORMER OMIT
-	resyncInterval := 30 * time.Second
+	resyncInterval := 2 * time.Second
 	informerFactory := informers.NewSharedInformerFactory(clientset, resyncInterval) // HL1
 	podInformer := informerFactory.Core().V1().Pods()                                // HL2
 	// POD INFORMER OMIT
@@ -41,7 +42,11 @@ func runInformer() error {
 			fmt.Printf("add pod: %v\n", new.(*v1.Pod).Name)
 		},
 		UpdateFunc: func(old, new interface{}) { // HL
-			fmt.Printf("update pod: %v\n", new.(*v1.Pod).Name)
+			oldPod := old.(*v1.Pod)
+			newPod := new.(*v1.Pod)
+			if oldPod.ResourceVersion != newPod.ResourceVersion {
+				fmt.Printf("update pod: %v\n", new.(*v1.Pod).Name)
+			}
 		},
 		DeleteFunc: func(obj interface{}) { // HL
 			fmt.Printf("delete pod: %v\n", obj.(*v1.Pod).Name)
@@ -52,6 +57,13 @@ func runInformer() error {
 
 	for {
 		time.Sleep(time.Second * 5)
+		pods, err := podInformer.Lister().Pods("default").List(labels.Everything())
+		if err != nil {
+			return err
+		}
+		for _, p := range pods {
+			fmt.Printf("Lister: %v\n", p.Name)
+		}
 		// POD LISTER OMIT
 		pod, err := podInformer.Lister().Pods("default").Get("shell")
 		// POD LISTER OMIT

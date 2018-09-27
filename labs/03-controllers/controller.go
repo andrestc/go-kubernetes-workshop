@@ -30,10 +30,12 @@ import (
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
 	appsinformers "k8s.io/client-go/informers/apps/v1"
+	coreinformers "k8s.io/client-go/informers/core/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/kubernetes/scheme"
 	typedcorev1 "k8s.io/client-go/kubernetes/typed/core/v1"
 	appslisters "k8s.io/client-go/listers/apps/v1"
+	corelisters "k8s.io/client-go/listers/core/v1"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/record"
 	"k8s.io/client-go/util/workqueue"
@@ -69,6 +71,7 @@ type Controller struct {
 	// sampleclientset is a clientset for our own API group
 	sampleclientset clientset.Interface
 
+	servicesLister    corelisters.ServiceLister
 	deploymentsLister appslisters.DeploymentLister
 	deploymentsSynced cache.InformerSynced
 	foosLister        listers.FooLister
@@ -90,6 +93,7 @@ func NewController(
 	kubeclientset kubernetes.Interface,
 	sampleclientset clientset.Interface,
 	deploymentInformer appsinformers.DeploymentInformer,
+	serviceInformer coreinformers.ServiceInformer,
 	fooInformer informers.FooInformer) *Controller {
 
 	// Create event broadcaster
@@ -105,6 +109,7 @@ func NewController(
 	controller := &Controller{
 		kubeclientset:     kubeclientset,
 		sampleclientset:   sampleclientset,
+		servicesLister:    serviceInformer.Lister(),
 		deploymentsLister: deploymentInformer.Lister(),
 		deploymentsSynced: deploymentInformer.Informer().HasSynced,
 		foosLister:        fooInformer.Lister(),
@@ -132,6 +137,21 @@ func NewController(
 		UpdateFunc: func(old, new interface{}) {
 			newDepl := new.(*appsv1.Deployment)
 			oldDepl := old.(*appsv1.Deployment)
+			if newDepl.ResourceVersion == oldDepl.ResourceVersion {
+				// Periodic resync will send update events for all known Deployments.
+				// Two different versions of the same Deployment will always have different RVs.
+				return
+			}
+			controller.handleObject(new)
+		},
+		DeleteFunc: controller.handleObject,
+	})
+
+	serviceInformer.Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
+		AddFunc: controller.handleObject,
+		UpdateFunc: func(old, new interface{}) {
+			newDepl := new.(*corev1.Service)
+			oldDepl := old.(*corev1.Service)
 			if newDepl.ResourceVersion == oldDepl.ResourceVersion {
 				// Periodic resync will send update events for all known Deployments.
 				// Two different versions of the same Deployment will always have different RVs.
@@ -306,9 +326,58 @@ func (c *Controller) syncHandler(key string) error {
 		return err
 	}
 
+	var service *corev1.Service
+	if foo.Spec.ServiceType != "" {
+		service, err = c.servicesLister.Services(foo.ObjectMeta.Namespace).Get(foo.ObjectMeta.Name)
+		if errors.IsNotFound(err) {
+			service, err = c.kubeclientset.CoreV1().Services(foo.ObjectMeta.Namespace).Create(&corev1.Service{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: foo.ObjectMeta.Name,
+					OwnerReferences: []metav1.OwnerReference{
+						*metav1.NewControllerRef(foo, schema.GroupVersionKind{
+							Group:   samplev1alpha1.SchemeGroupVersion.Group,
+							Version: samplev1alpha1.SchemeGroupVersion.Version,
+							Kind:    "Foo",
+						}),
+					},
+				},
+				Spec: corev1.ServiceSpec{
+					Type: corev1.ServiceType(foo.Spec.ServiceType),
+					Ports: []corev1.ServicePort{
+						{Port: int32(80)},
+					},
+					Selector: deployment.Spec.Selector.MatchLabels,
+				},
+			})
+		}
+
+		if err != nil {
+			return err
+		}
+		service = service.DeepCopy()
+		if service.Spec.Type != corev1.ServiceType(foo.Spec.ServiceType) {
+
+			if metav1.IsControlledBy(service, foo) {
+				service.Spec.Type = corev1.ServiceType(foo.Spec.ServiceType)
+				if service.Spec.Type == corev1.ServiceTypeClusterIP {
+					for i := range service.Spec.Ports {
+						service.Spec.Ports[i].NodePort = 0
+					}
+				}
+				service, err = c.kubeclientset.CoreV1().Services(foo.ObjectMeta.Namespace).Update(service)
+
+				if err != nil {
+					return err
+				}
+			}
+
+		}
+
+	}
+
 	// Finally, we update the status block of the Foo resource to reflect the
 	// current state of the world
-	err = c.updateFooStatus(foo, deployment)
+	err = c.updateFooStatus(foo, deployment, service)
 	if err != nil {
 		return err
 	}
@@ -317,12 +386,15 @@ func (c *Controller) syncHandler(key string) error {
 	return nil
 }
 
-func (c *Controller) updateFooStatus(foo *samplev1alpha1.Foo, deployment *appsv1.Deployment) error {
+func (c *Controller) updateFooStatus(foo *samplev1alpha1.Foo, deployment *appsv1.Deployment, service *corev1.Service) error {
 	// NEVER modify objects from the store. It's a read-only, local cache.
 	// You can use DeepCopy() to make a deep copy of original object and modify this copy
 	// Or create a copy manually for better performance
 	fooCopy := foo.DeepCopy()
 	fooCopy.Status.AvailableReplicas = deployment.Status.AvailableReplicas
+	if service != nil {
+		fooCopy.Status.ServiceIP = service.Spec.ClusterIP
+	}
 	// If the CustomResourceSubresources feature gate is not enabled,
 	// we must use Update instead of UpdateStatus to update the Status block of the Foo resource.
 	// UpdateStatus will not allow changes to the Spec of the resource,
