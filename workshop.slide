@@ -810,10 +810,15 @@ Creates a *Deployment* for each *Foo*
 Create project
 
   $ operator-sdk new <my-operator> --api-version=company.example.com/v1beta1 --kind=<my-kind>
+  $ cd <my-operator>
 
 Build
 
   $ operator-sdk build <docker-image>
+
+Apply CRD
+
+  $ kubectl apply -f ./deploy/crd.yaml
 
 Run
 
@@ -829,6 +834,8 @@ Example: the CRD can use a selector to select pods and a frequency. The Operator
 is going to delete a pod based on the selector with the given frequency.
 
 What other operations can we define?
+
+: https://github.com/cezarsa/chaos-operator-example
 
 * Operators - References
 
