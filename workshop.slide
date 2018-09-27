@@ -736,6 +736,8 @@ Creates a *Deployment* for each *Foo*
 
 .code -numbers examples/02-controllers/controller.go /runWorker\(\)/,/^}/
 
+: MetaNamespaceKeyFunc is a convenient default KeyFunc which knows how to make
+: keys for API objects which implement meta.Interface.
 
 * Sample Controller - workqueue
 
@@ -751,6 +753,11 @@ Creates a *Deployment* for each *Foo*
 
 .code -numbers examples/02-controllers/controller.go /START PROCESS-02/,/FINISH PROCESS-02/
 
+: Done    => processing finished
+: Forget  => do not re-queue this work.
+: We do not call forget on transient errors, we want to retry after a back-off
+: period. 
+
 * Sample Controller - controller.go
 
 .code -numbers examples/02-controllers/controller.go /START 02/,/FINISH 02/
@@ -760,6 +767,10 @@ Creates a *Deployment* for each *Foo*
 .code -numbers examples/02-controllers/controller.go /\) handleObject/,/\) handleObject/
 
 .code -numbers examples/02-controllers/controller.go /START HANDLE-01/,/FINISH/
+
+: If the object was removed, we may receive a tombstone instead.
+: This is a "container" that contains the metadata of the deleted
+: object.
 
 * Sample Controller - controllers.go
 
