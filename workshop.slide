@@ -521,21 +521,21 @@ Arguments:
 
 - Resources are objects that share a similar structure:
 
-.code ./examples/xx-crds/structs.go /POD STRUCT/,/POD STRUCT/ HL1
+.code ./examples/01-crds/structs.go /POD STRUCT/,/POD STRUCT/ HL1
 
 - `TypeMeta`: Describes resource `Kind` and `Version`, in this case they would be `"Pod"` and `"v1"`;
 - `ObjectMeta`: Common information all resource must have: `Name`, `Labels`, `Annotations`, `Namespace`, `Version`, `ResourceVersion`, various timestamps, etc...
 
 * What's a resource
 
-.code ./examples/xx-crds/structs.go /POD STRUCT/,/POD STRUCT/ HL2
+.code ./examples/01-crds/structs.go /POD STRUCT/,/POD STRUCT/ HL2
 
 - `<ResourceName>Spec`: Specific for each object, describes the desired state of the object, directly defined by the API user: desired nodes, container image, command, etc...
 - `<ResourceName>Status`: What's the cluster current state in regard to the desired state: current node, process state, process exit code, timestamps for each state, etc...
 
 * What's a resource
 
-.code ./examples/xx-crds/structs.go /POD LIST STRUCT/,/POD LIST STRUCT/
+.code ./examples/01-crds/structs.go /POD LIST STRUCT/,/POD LIST STRUCT/
 
 - `<ResourceName>List` struct: Returned by list API calls with the requested `Items` resource objects.
 
@@ -618,31 +618,31 @@ Custom resources are defined by a Custom Resource Definition
 
 *pkg/apis/samplecontroller/v1alpha1/types.go*
 
-.code examples/xx-crds/types.go /START 01/,/FINISH 01/
+.code examples/01-crds/types.go /START 01/,/FINISH 01/
 
 * CRDs - Programmatically
 
 *pkg/apis/samplecontroller/v1alpha1/types.go*
 
-.code examples/xx-crds/types.go /START 02/,/FINISH 02/
+.code examples/01-crds/types.go /START 02/,/FINISH 02/
 
 * CRDs - Programmatically
 
 *pkg/apis/samplecontroller/v1alpha1/register.go*
 
-.code examples/xx-crds/register.go /START 01/,/FINISH 01/
+.code examples/01-crds/register.go /START 01/,/FINISH 01/
 
 * CRDs - Programmatically
 
 *pkg/apis/samplecontroller/v1alpha1/register.go*
 
-.code examples/xx-crds/register.go /START 02/,/FINISH 02/
+.code examples/01-crds/register.go /START 02/,/FINISH 02/
 
 * CRDs - Programmatically
 
 *pkg/apis/samplecontroller/register.go*
 
-.code examples/xx-crds/outer_register.go
+.code examples/01-crds/outer_register.go
 
 * CRDs - Programmatically
 
