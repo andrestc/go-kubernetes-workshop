@@ -804,8 +804,23 @@ Creates a *Deployment* for each *Foo*
 
 * Operator SDK
 
+[[https://github.com/operator-framework/operator-sdk]]
+
 - CLI to bootstrap operators
+
 - Lets you focus on the business logic
+
+Installing client:
+
+  $ mkdir -p $GOPATH/src/github.com/operator-framework
+  $ cd $GOPATH/src/github.com/operator-framework
+  $ git clone https://github.com/operator-framework/operator-sdk
+  $ cd operator-sdk
+  $ git checkout master
+  $ make dep
+  $ make install
+
+* Operator SDK
 
 Create project
 
