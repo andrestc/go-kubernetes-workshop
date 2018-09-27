@@ -337,12 +337,12 @@ Creating a new pod using the API:
 
 - Let's add a new label to a namespace and check it's there:
   kubectl label namespace default mykey=myvalue
-  kubectl get namespace default -o json
+  kubectl get namespace default -o json > updatedjsonfile.json
   curl 127.0.0.1:8001/api/v1/namespaces/default
 
 - Save the JSON and change the label using your favorite editor;
 - Update the namespace using curl:
-  curl -H "Content-Type: application/json" -X PUT -d ./updatedjsonfile.json \
+  curl -H "Content-Type: application/json" -X PUT -d @./updatedjsonfile.json \
     http://127.0.0.1:8001/api/v1/namespaces/default
 
 
